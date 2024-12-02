@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Detector - germange</title>
+    <link rel="icon" type="image/png" href="../static/images/favicon.png">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Styles -->
+    <style>
+        /* Estilos adicionales para resultados */
+.result {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.result-image {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 0.5rem;
+}
+
+.result-message {
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.error {
+    margin-top: 1.5rem;
+    text-align: center;
+    background-color: #e74c3c;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.error p {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+        :root {
+            /* Light Theme Variables */
+            --background-color: #f0f2f5; /* Light Gray */
+            --card-background: #ffffff; /* White */
+            --text-color: #2c3e50; /* Dark Blue-Gray */
+            --primary-color: #34495e; /* Formal Dark Blue */
+            --secondary-color: #2980b9; /* Formal Blue */
+            --button-hover-color: #1abc9c; /* Teal for hover */
+            --modal-background: rgba(0, 0, 0, 0.5);
+            --modal-content-background: #ffffff;
+            --border-radius: 8px;
+            --header-footer-background: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --footer-text-color: #7f8c8d;
+            --link-hover-color: #2980b9;
+        }
+
+        /* Dark Theme Variables */
+        body.dark-theme {
+            --background-color: #2c3e50; /* Dark Blue-Gray */
+            --card-background: #34495e; /* Darker Blue */
+            --text-color: #ecf0f1; /* Light Gray */
+            --primary-color: #1abc9c; /* Teal */
+            --secondary-color: #16a085; /* Dark Teal */
+            --button-hover-color: #1abc9c; /* Teal for hover */
+            --modal-background: rgba(0, 0, 0, 0.7);
+            --modal-content-background: #2c3e50;
+            --header-footer-background: #34495e;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --footer-text-color: #bdc3c7;
+            --link-hover-color: #1abc9c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        /* Fade-in Animation for Body */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        header {
+            padding: 2.5rem 2rem;
+            text-align: center;
+            background-color: var(--header-footer-background);
+            box-shadow: 0 2px 4px var(--shadow-color);
+            position: relative;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Dark Mode Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            color: var(--secondary-color);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            transition: color 0.3s ease;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            transition: box-shadow 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 12px var(--shadow-color);
+            transform: translateY(-3px);
+        }
+
+        /* Primary Card (Spam Detection) */
+        .card.primary {
+            background-color: var(--card-background);
+        }
+
+        .card.primary img {
+            width: 120px;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+
+        .card.primary h2 {
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        /* Information Button */
+        .info-button {
+            background-color: var(--secondary-color);
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .info-button:hover {
+            background-color: var(--button-hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+        }
+
+        .info-button i {
+            font-size: 1.2rem;
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--secondary-color);
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Emoticons with Animation */
+        .emote {
+            font-size: 2.5rem;
+            transition: transform 0.3s;
+        }
+        .emote:hover {
+            transform: scale(1.1);
+        }
+
+        /* Form */
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .form-container textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            background-color: #ecf0f1;
+            color: var(--text-color);
+            resize: vertical;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body.dark-theme .form-container textarea {
+            background-color: #34495e;
+            border: 1px solid #7f8c8d;
+            color: var(--text-color);
+        }
+
+        .form-container textarea:focus {
+            border-color: var(--secondary-color);
+            background-color: #d0d3d4;
+            outline: none;
+        }
+
+        .form-container button {
+            padding: 0.8rem 2rem;
+            background-color: var(--secondary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .form-container button:hover {
+            background-color: var(--button-hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+        }
+
+        /* Results */
+        .result-container {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .result-container img {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-container p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+
+        body.dark-theme .result-container p {
+            color: #bdc3c7;
+        }
+
+        /* Loading Indicator */
+        .loading {
+            display: none;
+            margin-top: 1.5rem;
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        body.dark-theme .loading {
+            color: #bdc3c7;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Enable scroll if needed */
+            background-color: var(--modal-background);
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--modal-content-background);
+            margin: 10% auto;
+            padding: 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            color: var(--text-color);
+            box-shadow: 0 8px 16px var(--shadow-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--secondary-color);
+        }
+
+        .modal-content img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            text-align: center;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        .modal-content p {
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        body.dark-theme .modal-content p {
+            color: #bdc3c7;
+        }
+
+        /* Footer */
+        footer {
+            padding: 1.5rem 2rem;
+            text-align: center;
+            background-color: var(--header-footer-background);
+            box-shadow: 0 -2px 4px var(--shadow-color);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .social-links a {
+            color: var(--primary-color);
+            margin: 0 1rem;
+            font-size: 1.5rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+            position: relative;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+            transform: scale(1.2);
+        }
+
+        .social-links a::after {
+            content: attr(aria-label);
+            position: absolute;
+            bottom: -1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--header-footer-background);
+            color: var(--text-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            opacity: 0;
+            white-space: nowrap;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .social-links a:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        footer p {
+            margin-top: 1rem;
+            color: var(--footer-text-color);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 20% auto;
+                width: 90%;
+            }
+
+            .info-button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card.primary {
+                max-width: 100%;
+                padding: 2rem;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Spam Detector</h1>
+        <p>Protecting your email and messages from spam</p>
+        <!-- Botón para cambiar el modo oscuro -->
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+
+    <main>
+        <!-- Tarjeta principal de detección de spam -->
+        <div class="card primary">
+            <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="Spam Detection">
+            <h2>Detect if your message is SPAM</h2>
+            <div class="form-container">
+                <form id="spam-form">
+                    <textarea id="texto" name="texto" rows="5" placeholder="Enter the text to analyze..." required></textarea>
+                    <button type="submit">Detect SPAM</button>
+                </form>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing...</p>
+                </div>
+                <div class="result-container" id="resultado"></div>
+            </div>
+        </div>
+
+        <!-- Botón de información -->
+        <button class="info-button" id="info-button">
+            <i class="fas fa-info-circle"></i>
+            Learn More
+        </button>
+    </main>
+
+    <!-- Estructura del modal -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close" id="close-modal">&times;</span>
+            <img src="{{ url_for('static', filename='images/spam.png') }}" alt="Spam Information" style="width: 135px; height: 135px;" class="img-left">
+            <img src="{{ url_for('static', filename='images/reporte.png') }}" alt="Score report" style="width: 230px; height: 153px;" class="img-right">
+            <h2>About Our Spam Detection Model</h2>
+            <p>
+                The model used has been trained with Random Forest, and the purpose of the project is to eliminate spam by implementing this functionality in other applications in the future.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://www.linkedin.com/in/germangarest" target="_blank" aria-label="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="https://github.com/germangarest" target="_blank" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://germange.com" target="_blank" aria-label="My Website">
+                <i class="fas fa-globe"></i>
+            </a>
+        </div>
+        <p>&copy; 2024 Germán García Estévez. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript para interactividad mejorada -->
+    <!-- Definir la URL estática para usar en JavaScript -->
+    <script type="text/javascript">
+        const staticUrl = "{{ url_for('static', filename='') }}";
+    </script>
+    <script>
+    // Manejar el envío del formulario de detección de spam
+    async function enviarTexto(event) {
+        event.preventDefault();
+        const texto = document.getElementById('texto').value;
+        const resultadoDiv = document.getElementById('resultado');
+        const loadingDiv = document.getElementById('loading');
+        resultadoDiv.innerHTML = ''; // Limpiar resultado previo
+        loadingDiv.style.display = 'block'; // Mostrar spinner de carga
+
+        try {
+            const respuesta = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'texto=' + encodeURIComponent(texto)
+            });
+            const resultado = await respuesta.json();
+
+            loadingDiv.style.display = 'none'; // Ocultar spinner de carga
+
+            if (respuesta.ok) {
+                let emote = '';
+                let imagenResultado = '';
+
+                if (resultado.is_spam) {
+                    emote = '🚫'; // Emoticono para spam
+                    imagenResultado = 'spam_emoji.png'; // Imagen para spam
+                } else {
+                    emote = '😊'; // Emoticono para no spam
+                    imagenResultado = 'not_spam.png'; // Imagen para no spam
+                }
+
+                const imageUrl = staticUrl + 'images/' + imagenResultado;
+
+                resultadoDiv.innerHTML = `
+                    <div class="result">
+                        <img src="${imageUrl}" alt="Result" class="result-image">
+                        <span class="emote">${emote}</span>
+                        <p class="result-message">${resultado.message}</p>
+                    </div>
+                `;
+            } else {
+                resultadoDiv.innerHTML = `
+                    <div class="error">
+                        <p>Error: ${resultado.error}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            loadingDiv.style.display = 'none'; // Ocultar spinner de carga
+            resultadoDiv.innerHTML = `
+                <div class="error">
+                    <p>Ocurrió un error: ${error.message}</p>
+                </div>
+            `;
+            console.error('Error durante la solicitud:', error);
+        }
+    }
+
+    // Asociar el evento al formulario
+    document.getElementById('spam-form').addEventListener('submit', enviarTexto);
+
+    // Funcionalidad del modal
+    const modal = document.getElementById('info-modal');
+    const infoButton = document.getElementById('info-button');
+    const closeModal = document.getElementById('close-modal');
+
+    // Abrir el modal al hacer clic en el botón de información
+    infoButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    // Cerrar el modal al hacer clic en la 'X'
+    closeModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Cerrar el modal al hacer clic fuera del contenido
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Funcionalidad de cambio de tema (modo oscuro)
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // Función para cambiar el tema
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+        updateToggleIcon();
+        // Guardar la preferencia del usuario en localStorage
+        if (document.body.classList.contains('dark-theme')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Función para actualizar el icono del botón de cambio de tema
+    function updateToggleIcon() {
+        if (document.body.classList.contains('dark-theme')) {
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+    }
+
+    // Event listener para el botón de cambio de tema
+    themeToggle.addEventListener('click', toggleTheme);
+
+    // Comprobar localStorage para la preferencia de tema al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+        updateToggleIcon();
+    });
+</script>
+</body>
+</html>
