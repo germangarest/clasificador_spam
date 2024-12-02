@@ -14,6 +14,8 @@
 
 Esta aplicación web permite detectar si un mensaje de texto es spam o no spam utilizando técnicas de Machine Learning. El modelo ha sido entrenado con un dataset de mensajes clasificados y utiliza procesamiento de lenguaje natural para realizar las predicciones.
 
+---
+
 ## 🚀 Características
 
 - Interfaz web intuitiva y fácil de usar
@@ -21,6 +23,8 @@ Esta aplicación web permite detectar si un mensaje de texto es spam o no spam u
 - Visualización de la probabilidad de spam
 - Modelo de Machine Learning pre-entrenado
 - API REST para integración con otros sistemas
+
+---
 
 ## 📸 Capturas de Pantalla
 
@@ -32,6 +36,8 @@ Esta aplicación web permite detectar si un mensaje de texto es spam o no spam u
 ![Resultados](screenshots/results.png)
 *Visualización de los resultados del análisis de spam*
 
+---
+
 ## 🛠️ Tecnologías Utilizadas
 
 - Python 3.8+
@@ -41,6 +47,8 @@ Esta aplicación web permite detectar si un mensaje de texto es spam o no spam u
 - Bootstrap (Frontend)
 - HTML/CSS/JavaScript
 
+---
+
 ## 📋 Requisitos Previos
 
 ```bash
@@ -48,6 +56,8 @@ Python 3.8 o superior
 pip (gestor de paquetes de Python)
 Git
 ```
+
+---
 
 ## 🔧 Instalación
 
@@ -71,6 +81,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+---
+
 ## 💻 Uso
 
 1. Inicia la aplicación:
@@ -84,6 +96,8 @@ http://localhost:5000
 ```
 
 3. Ingresa el texto que deseas analizar y haz clic en "Analizar".
+
+---
 
 ## 📊 Estructura del Proyecto
 
@@ -110,6 +124,8 @@ app_spam/
     └── ...
 ```
 
+---
+
 ## 🤝 Contribuir
 
 Las contribuciones son bienvenidas. Para contribuir:
@@ -121,15 +137,11 @@ Las contribuciones son bienvenidas. Para contribuir:
 5. Push a la rama (`git push origin feature/AmazingFeature`)
 6. Abre un Pull Request
 
+---
+
 ## 📝 Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para más detalles.
-
-## 🙏 Agradecimientos
-
-- Mencionar cualquier recurso, tutorial o persona que haya ayudado en el desarrollo
-- Dataset utilizado para el entrenamiento
-- Comunidad de desarrolladores
 
 ---
 ⌨️ con ❤️ por [Germán García Estévez](https://www.linkedin.com/in/germangarest) 😊
