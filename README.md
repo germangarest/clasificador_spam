@@ -108,10 +108,7 @@ app_spam/
 ├── entrenamiento_modelo.py# Script de entrenamiento del modelo
 ├── requirements.txt       # Dependencias del proyecto
 │
-├── data/                 # Datos de entrenamiento y prueba
-│   └── ...
-│
-├── models/              # Modelos entrenados
+├── models.zip/              # Modelos entrenados
 │   └── ...
 │
 ├── static/             # Archivos estáticos (CSS, JS)
